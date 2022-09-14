@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Error};
+use serde_json;
 
 pub struct Connector {
     url: String,
@@ -20,12 +20,13 @@ impl Connector {
         let client = reqwest::blocking::Client::new();
         let res = client.get(&self.url)
             .basic_auth(&self.user, Some(&self.api_key))
-            .send().unwrap();
-    
-        let json  = res.text();
-        println!("{:?}", json);
+            .send()
+            .expect("Couldn't receive a response")
+            .json::<serde_json::Value>()
+            .expect("Couldn't parse the response");
 
-        println!("{}", ticket_number);
+    
+        println!("{:?}", res);
         ticket_number.to_owned()
     }
 }
