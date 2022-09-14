@@ -7,7 +7,6 @@ pub struct Connector {
 }
 
 impl Connector {
-
     pub fn new(url: String, api_key: String, user: String) -> Connector {
        Connector {
            url,
@@ -31,18 +30,28 @@ impl Connector {
 }
 
 pub struct Ticket {
-    title: String
+    title: String,
+    task_type: String,
+    ticket_number: String,
+    description: String
 }
 
 impl Ticket {
     pub fn new(json_ticket: serde_json::Value) -> Ticket {
         Ticket {
-            title: json_ticket["key"].to_string()
+            title: json_ticket["fields"]["summary"].to_string(),
+            task_type: json_ticket["fields"]["issuetype"]["name"].to_string(),
+            ticket_number: json_ticket["key"].to_string(),
+            description: json_ticket["fields"]["description"].to_string()
         }
     }
 
-    pub fn to_string(&self) -> String {
-        self.title.clone()
+    pub fn print_ticket(&self) {
+        println!("Ticket name: {}", &self.title.trim_matches('"'));
+        println!("Ticket number: {}", &self.ticket_number.trim_matches('"'));
+        println!("Ticket type: {}", &self.task_type.trim_matches('"'));
+        println!("Description");
+        println!("{}", &self.description.trim_matches('"'));
     }
 }
 
