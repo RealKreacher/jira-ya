@@ -1,4 +1,4 @@
-use serde_json;
+use serde_json::{self, Value};
 
 pub struct Connector {
     url: String,
@@ -16,8 +16,9 @@ impl Connector {
        }
     }
 
-    pub fn download_ticket(&self, ticket_number: &str) -> String {
+    pub fn download_ticket(&self) -> Value {
         let client = reqwest::blocking::Client::new();
+
         let res = client.get(&self.url)
             .basic_auth(&self.user, Some(&self.api_key))
             .send()
@@ -25,8 +26,23 @@ impl Connector {
             .json::<serde_json::Value>()
             .expect("Couldn't parse the response");
 
-    
-        println!("{:?}", res);
-        ticket_number.to_owned()
+        res
     }
 }
+
+pub struct Ticket {
+    title: String
+}
+
+impl Ticket {
+    pub fn new(json_ticket: serde_json::Value) -> Ticket {
+        Ticket {
+            title: json_ticket["key"].to_string()
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        self.title.clone()
+    }
+}
+
